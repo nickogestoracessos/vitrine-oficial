@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Upload, Link2, Plus } from "lucide-react"
+import { Upload, Link2, Plus, Package } from "lucide-react"
+import { products } from "@/lib/products-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -47,6 +48,10 @@ export function ProductForm() {
   const [isHighlighted, setIsHighlighted] = useState(false)
   const [isActive, setIsActive] = useState(true)
   const [showInStorefront, setShowInStorefront] = useState(true)
+  const [hasOrderBump, setHasOrderBump] = useState(false)
+  const [orderBumpProduct, setOrderBumpProduct] = useState("")
+  const [orderBumpPrice, setOrderBumpPrice] = useState("")
+  const [orderBumpDescription, setOrderBumpDescription] = useState("")
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -242,6 +247,73 @@ export function ProductForm() {
             rows={3}
             className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon resize-none"
           />
+        </div>
+
+        {/* Order Bump Section */}
+        <div className="space-y-4 pt-4 border-t border-border">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id="hasOrderBump"
+              checked={hasOrderBump}
+              onCheckedChange={(checked) => setHasOrderBump(checked as boolean)}
+              className="border-border data-[state=checked]:bg-neon data-[state=checked]:border-neon"
+            />
+            <Label htmlFor="hasOrderBump" className="text-foreground cursor-pointer flex items-center gap-2">
+              <Package className="w-4 h-4 text-neon" />
+              Adicionar Order Bump
+            </Label>
+          </div>
+
+          {hasOrderBump && (
+            <div className="ml-7 space-y-4 p-4 rounded-lg bg-neon/5 border border-neon/30">
+              <p className="text-xs text-muted-foreground">
+                O Order Bump aparece na pagina de checkout como oferta adicional
+              </p>
+              
+              <div className="space-y-2">
+                <Label className="text-foreground">Produto do Order Bump</Label>
+                <Select value={orderBumpProduct} onValueChange={setOrderBumpProduct}>
+                  <SelectTrigger className="bg-secondary border-border text-foreground focus:border-neon focus:ring-neon">
+                    <SelectValue placeholder="Selecione um produto" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    {products.map((product) => (
+                      <SelectItem
+                        key={product.id}
+                        value={product.id.toString()}
+                        className="text-foreground focus:bg-neon/20 focus:text-neon"
+                      >
+                        {product.name} - R$ {product.price.toFixed(2).replace(".", ",")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="orderBumpPrice" className="text-foreground">Preco com Desconto</Label>
+                <Input
+                  id="orderBumpPrice"
+                  type="text"
+                  placeholder="R$ 0,00"
+                  value={orderBumpPrice}
+                  onChange={(e) => setOrderBumpPrice(e.target.value)}
+                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="orderBumpDesc" className="text-foreground">Descricao da Oferta</Label>
+                <Input
+                  id="orderBumpDesc"
+                  placeholder="Ex: Adicione o Spotify por apenas R$ 14,90"
+                  value={orderBumpDescription}
+                  onChange={(e) => setOrderBumpDescription(e.target.value)}
+                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Toggles */}
