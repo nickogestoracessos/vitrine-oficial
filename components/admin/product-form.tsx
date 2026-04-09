@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Upload, Link2, Plus, Package } from "lucide-react"
-import { products } from "@/lib/products-data"
+import { Upload, Link2, Plus, Package, Save } from "lucide-react"
+import { products, Product } from "@/lib/products-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -42,23 +42,38 @@ const checkoutTypes = [
   { id: "whatsapp", label: "WhatsApp" },
 ]
 
-export function ProductForm() {
-  const [uploadMode, setUploadMode] = useState<"upload" | "url">("upload")
-  const [checkoutType, setCheckoutType] = useState("direto")
-  const [isHighlighted, setIsHighlighted] = useState(false)
-  const [isActive, setIsActive] = useState(true)
-  const [showInStorefront, setShowInStorefront] = useState(true)
-  const [hasOrderBump, setHasOrderBump] = useState(false)
-  const [orderBumpProduct, setOrderBumpProduct] = useState("")
-  const [orderBumpPrice, setOrderBumpPrice] = useState("")
-  const [orderBumpDescription, setOrderBumpDescription] = useState("")
+interface ProductFormProps {
+  product?: Product | null
+}
+
+export function ProductForm({ product }: ProductFormProps) {
+  const isEditing = !!product
+  const [uploadMode, setUploadMode] = useState<"upload" | "url">(product?.imageUrl ? "url" : "upload")
+  const [checkoutType, setCheckoutType] = useState(product?.checkoutType || "direto")
+  const [isHighlighted, setIsHighlighted] = useState(product?.isHighlighted || false)
+  const [isActive, setIsActive] = useState(product?.isActive ?? true)
+  const [showInStorefront, setShowInStorefront] = useState(product?.showInStorefront ?? true)
+  const [hasOrderBump, setHasOrderBump] = useState(!!product?.orderBump)
+  const [orderBumpProduct, setOrderBumpProduct] = useState(product?.orderBump?.productId?.toString() || "")
+  const [orderBumpPrice, setOrderBumpPrice] = useState(product?.orderBump?.discountedPrice?.toString() || "")
+  const [orderBumpDescription, setOrderBumpDescription] = useState(product?.orderBump?.description || "")
+  const [name, setName] = useState(product?.name || "")
+  const [price, setPrice] = useState(product?.price?.toString() || "")
+  const [category, setCategory] = useState(product?.category || "")
+  const [discount, setDiscount] = useState(product?.discount?.toString() || "")
+  const [shortDesc, setShortDesc] = useState(product?.description || "")
+  const [fullDesc, setFullDesc] = useState(product?.fullDescription || "")
+  const [imageUrl, setImageUrl] = useState(product?.imageUrl || "")
+  const [deliveryLink, setDeliveryLink] = useState(product?.deliveryLink || "")
 
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-neon mb-1">Novo Produto</h2>
+        <h2 className="text-2xl font-bold text-neon mb-1">
+          {isEditing ? "Editar Produto" : "Novo Produto"}
+        </h2>
         <p className="text-sm text-muted-foreground">
-          Preencha os dados do seu produto digital
+          {isEditing ? "Atualize os dados do produto" : "Preencha os dados do seu produto digital"}
         </p>
       </div>
 
@@ -69,6 +84,8 @@ export function ProductForm() {
             <Label htmlFor="name" className="text-foreground">Nome</Label>
             <Input
               id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Conta Premium Netflix"
               className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon"
             />
@@ -78,6 +95,8 @@ export function ProductForm() {
             <Input
               id="price"
               type="text"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
               placeholder="R$ 0,00"
               className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon"
             />
@@ -87,7 +106,7 @@ export function ProductForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-foreground">Categoria</Label>
-            <Select>
+            <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="bg-secondary border-border text-foreground focus:border-neon focus:ring-neon">
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
@@ -106,7 +125,7 @@ export function ProductForm() {
           </div>
           <div className="space-y-2">
             <Label className="text-foreground">Desconto</Label>
-            <Select>
+            <Select value={discount} onValueChange={setDiscount}>
               <SelectTrigger className="bg-secondary border-border text-foreground focus:border-neon focus:ring-neon">
                 <SelectValue placeholder="Selecione um desconto" />
               </SelectTrigger>
@@ -129,6 +148,8 @@ export function ProductForm() {
           <Label htmlFor="shortDesc" className="text-foreground">Descrição Curta</Label>
           <Input
             id="shortDesc"
+            value={shortDesc}
+            onChange={(e) => setShortDesc(e.target.value)}
             placeholder="Uma breve descrição do produto"
             className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon"
           />
@@ -138,6 +159,8 @@ export function ProductForm() {
           <Label htmlFor="fullDesc" className="text-foreground">Descrição Completa</Label>
           <Textarea
             id="fullDesc"
+            value={fullDesc}
+            onChange={(e) => setFullDesc(e.target.value)}
             placeholder="Descreva detalhadamente seu produto..."
             rows={4}
             className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon resize-none"
@@ -194,6 +217,8 @@ export function ProductForm() {
             </div>
           ) : (
             <Input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
               placeholder="https://exemplo.com/imagem.png"
               className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon"
             />
@@ -243,6 +268,8 @@ export function ProductForm() {
           <Label htmlFor="deliveryLink" className="text-foreground">Link de Entrega</Label>
           <Textarea
             id="deliveryLink"
+            value={deliveryLink}
+            onChange={(e) => setDeliveryLink(e.target.value)}
             placeholder="Insira o link ou instruções de entrega do produto..."
             rows={3}
             className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-neon focus:ring-neon resize-none"
@@ -357,8 +384,17 @@ export function ProductForm() {
 
         {/* Submit Button */}
         <Button className="w-full bg-neon text-black font-semibold hover:bg-neon/90 transition-all shadow-[0_0_20px_rgba(57,255,20,0.3)]">
-          <Plus className="w-5 h-5 mr-2" />
-          Adicionar Produto
+          {isEditing ? (
+            <>
+              <Save className="w-5 h-5 mr-2" />
+              Salvar Alteracoes
+            </>
+          ) : (
+            <>
+              <Plus className="w-5 h-5 mr-2" />
+              Adicionar Produto
+            </>
+          )}
         </Button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Gamepad2, LogOut, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -20,9 +21,12 @@ export function AdminHeader() {
           variant="outline" 
           size="sm"
           className="border-neon text-neon hover:bg-neon/10 hover:text-neon bg-transparent"
+          asChild
         >
-          <ExternalLink className="w-4 h-4 mr-2" />
-          Ver Vitrine
+          <Link href="/loja/nickofaroli" target="_blank">
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Ver Vitrine
+          </Link>
         </Button>
         
         <Button 
