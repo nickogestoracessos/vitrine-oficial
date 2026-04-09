@@ -1,12 +1,42 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { Dashboard } from "@/components/admin/dashboard"
 import { ProductsList } from "@/components/admin/products-list"
+import { CategoriesPage } from "@/components/admin/categories-page"
+import { FinancialPage } from "@/components/admin/financial-page"
+import { SettingsPage } from "@/components/admin/settings-page"
 
 export default function Home() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState("dashboard")
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Check if user is logged in
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true"
+    if (!loggedIn) {
+      router.push("/login")
+    } else {
+      setIsAuthenticated(true)
+    }
+    setIsLoading(false)
+  }, [router])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neon border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return null
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -15,26 +45,11 @@ export default function Home() {
       case "produtos":
         return <ProductsList />
       case "categorias":
-        return (
-          <div className="p-6 rounded-xl bg-card border border-border">
-            <h2 className="text-xl font-bold text-foreground mb-4">Categorias</h2>
-            <p className="text-muted-foreground">Gerencie as categorias dos seus produtos.</p>
-          </div>
-        )
+        return <CategoriesPage />
       case "financeiro":
-        return (
-          <div className="p-6 rounded-xl bg-card border border-border">
-            <h2 className="text-xl font-bold text-foreground mb-4">Financeiro</h2>
-            <p className="text-muted-foreground">Acompanhe seu faturamento e transações.</p>
-          </div>
-        )
+        return <FinancialPage />
       case "configuracoes":
-        return (
-          <div className="p-6 rounded-xl bg-card border border-border">
-            <h2 className="text-xl font-bold text-foreground mb-4">Configurações</h2>
-            <p className="text-muted-foreground">Configure seu painel e preferências.</p>
-          </div>
-        )
+        return <SettingsPage />
       default:
         return <Dashboard />
     }
